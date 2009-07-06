@@ -128,12 +128,12 @@ Setup & Customization - THE FORM
       would suggest showing the user that the field is required by marking
       it somehow in your form
 
-  Requiring a <select> input is a bit different. To do this you‚Äôll need to adjust the
-  name from something like ‚Äúcars[]‚Äù to ‚Äúrequired-cars[]‚Äù and then add an option similar
+  Requiring a <select> input is a bit different. To do this you'll need to adjust the
+  name from something like 'cars[]' to 'required-cars[]' and then add an option similar
   to this:
 
   <option value ="didnotchoose" selected>Choose One</option>
-      You can put anything you want in the ‚ÄúChoose One‚Äù area. This will require the select
+      You can put anything you want in the 'Choose One' area. This will require the select
       to be used. You can read more about the select usage below.
 
 * Ignore Fields
@@ -344,7 +344,6 @@ count()
 date()
 define()
 empty()
-ereg()
 htmlspecialchars()
 implode()
 in_array()

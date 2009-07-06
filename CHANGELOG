@@ -4,6 +4,7 @@ Change Log
   
   Cleaned up some of the code
   Moved change log from README to individual file
+  Replaced ereg() email address validation with preg_match()
   Fixed numerous bugs
 
 

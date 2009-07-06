@@ -136,7 +136,7 @@ if ( array_key_exists('emailnow', $_POST) ) {
 	foreach ($_POST as $field => $data) {
 		$field = strtolower(preg_replace("/[^a-zA-Z0-9s]/", "", $field));
 		$data = strtolower($data);
-		if ( (strstr($field,'email')) && (!empty($data)) && (!ereg("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$", $data)) ) {
+		if ( (strstr($field,'email')) && (!empty($data)) && ( ! preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/", $data)) ) {
 			$errors[] = "This email address is not valid: <strong>$data</strong>";
 		}
 	}
