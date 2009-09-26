@@ -1,7 +1,5 @@
 <?php
 
-error_reporting(E_ALL);
-
 /**
  * @package Catch-All PHP Form Processor
  * @version 2.0.0
@@ -189,17 +187,12 @@ if ( array_key_exists('submit', $_POST) )
 
    	foreach ($_POST as $field => $data)
    	{
-   		if ( is_array($data) )
-   		{
-   		   $data = implode(", ", $data);
-   		}
-   		
+         // Turn arrays into comma separated strings
+   		$data = ( is_array($data) ) ? implode(", ", $data) : $data ;
+   		// Remove didnotchoose from the new string value
    		$value = str_replace('didnotchoose, ', '', $data);
-   		
-   		if ( $data == "" )
-   		{
-   		   $data = "[ left blank ]";
-   		}
+   		// If form field was left blank we add a string to be shown in the results
+   		$data = ($data == "") ? "[ left blank ]" : $data ;
    		
    		if ( ! INCLUDE_BLANK_FIELDS )
    		{
@@ -226,12 +219,7 @@ if ( array_key_exists('submit', $_POST) )
    
       // To send HTML mail, the Content-type header must be set
    	$headers  = 'MIME-Version: 1.0' . HEADER_TRAIL;
-   	if ( ! EMAIL_HTML )
-   	{
-   		$headers .= 'Content-type: text;' . HEADER_TRAIL;
-   	} else {
-   		$headers .= 'Content-type: text/html; charset=iso-8859-1' . HEADER_TRAIL;
-   	}
+   	$headers .= ( ! EMAIL_HTML) ? 'Content-type: text;' . HEADER_TRAIL : 'Content-type: text/html; charset=iso-8859-1' . HEADER_TRAIL ;
 
    	// Additional headers
    	$headers .= "From: ".FROM_NAME." <".FROM_EMAIL.">" . HEADER_TRAIL;
@@ -251,10 +239,8 @@ if ( array_key_exists('submit', $_POST) )
    			$message .= ((strtolower($field) == "submit") || (strtolower($field) == "emailnow")) ? "" : "\n$field\n   ".stripslashes($data)."\n";
    		}
 		
-   		if ( INCLUDE_TIMESTAMP )
-   		{
-   		   $message .= "\nForm Submitted on $timestamp\n";
-   		}
+		   $message .= ( INCLUDE_TIMESTAMP ) ? "\nForm Submitted on $timestamp\n" : NULL ;
+
    	} else {
    		$message = "	<html>
    		<head>
@@ -268,10 +254,8 @@ if ( array_key_exists('submit', $_POST) )
    		";
    		foreach($_POST as $field => $data)
    		{
-   			if ( is_array($data) )
-   			{
-   			   $data = implode(", ", $data);
-   			}
+   			$data = ( is_array($data) ) ? implode(", ", $data) : $data ;
+
    			$field = preg_replace('/[-_]/',' ',strtolower(str_replace('required','',$field)));
             // $data = htmlspecialchars($data);
    			$message .= ((strtolower($field) == "submit") || (strtolower($field) == "emailnow")) ? "" : "    <tr style='margin:4px'>
