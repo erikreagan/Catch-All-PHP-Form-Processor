@@ -1,0 +1,345 @@
+h1. Catch-All PHP Form Processor
+
+Catch-all PHP Form Processor is a two file PHP script that can capture virtually any form sent to it. It is intended for contact and registration forms of which the results need to be emailed to one or more parties. This script is not intended for file uploading or database communication. It can be used on almost any site with just about any form 100% free.
+
+h2. Credits
+
+Developed by Erik Reagan, http://erikreagan.com
+
+
+h2. Introduction
+
+Through my work in web development I've noticed the high number of times I need to write out a contact or registration form for a client. Each time I get the form fields together and then decide how I want to process the form. This usually entails a client-side validation of certain fields (required fields, email validation, etc) and then a back-end check of those fields before
+processing them. This process can get pretty repetitive if you do a high volume of projects or sites needing this function. I was looking for a way to process any form I create with the same script each time and thus produced this PHP script. It's a lightweight, single file form processor (with an additional file for configuration) that has a number of options. The goal of this script is to provide a small footprint resource available to use over and over. For certain forms you may want to implement your own client-side validation of fields before sending them to the form processor. Let's explore the features:
+
+
+h2. Requirements
+
+* This script requires PHP 4.0.7 or newer
+
+
+h2. Features
+
+
+* A PHP file inspects form data and runs simple validation on empty fields and email addresses
+* You have the option of sending the user to a Review page
+* Upon review the user can print and/or submit the results once all fields are
+* Can submit results to 1 or more email accounts
+* Can send a blind carbon copy (bcc) as well
+* Email results can be plain text or HTML formatted
+* Script can be used in a standalone environment OR as a part of your existing site template
+* You can define which fields are required
+* You can define which fields (if any) should not be displayed back to the user when they check the results before submission (eg: IP address)
+
+
+h2. Form Field Compatibility
+
+This script successfully processes the following field types:
+
+* text
+* radio
+* checkbox
+* select & options(single and multiple)
+* hidden
+* textarea
+* image
+
+Be sure to read below to understand how to successfully setup multiple checkboxes within a single "name" and multiple select options within a single "name".
+
+
+h2. Setup & Customization - THE FORM
+
+h3. The Basics
+
+Catch-All Form Processor is nothing but a processor. The form code must be provided on your end. This script does a few things that require you to put a little bit of thought into your form. For every input field you have you must give it a name (a standard in XHTML). How you name said fields will determine how they are displayed in the results. I have followed the standard of "pretty links" all around the web now. If you have a field such as "First Name" you would (probably) want to name it "first-name" or "first_name". This is processed in the script to read "First Name". For example:
+
+
+<pre>
+  <input type="text" name="first-name" id="first-name" value="Erik Reagan" />
+</pre>
+
+This will be read by the script as the field "First Name" having a value of "Erik Reagan"
+
+<pre>
+  <textarea name="additional-comments">Text area  here</textarea>
+</pre>
+
+This will be read by the script as the field "Additional Comments" having it's relative value
+
+
+h3. Form Submission
+
+**THIS IS VERY IMPORTANT!** In order for the script to process the form it must recognize the submit button. Your submit button must have the name set to 'submit' to work. Image submit buttons are also acceptable as long as you give them a value of 'submit' AND give them a name.
+
+<pre>
+  <input type="submit" name="submit" id="submit" value="Submit Results" />
+      The above is acceptable
+  <input type="submit" name="submit" id="formbutton" value="Blast Off!!!" />
+      The above is acceptable
+  <input type="image" src="button.jpg" id="formbutton" name="formbutton" value="submit" alt="Blast Off!!!" />
+      The above is acceptable
+  <input type="image" src="button.jpg" id="formbutton" value="submit" alt="Blast Off!!!" />
+      The above is NOT acceptable (name="something" is missing)
+</pre>
+
+h3. Require Fields
+
+If you have fields you need to require (such as name, email, etc) you can simple append "require" to the FRONT of the name. For example:
+
+<pre>  
+  <input type="text" name="require-first-name" id="first-name" value="Erik Reagan" />
+</pre>
+
+This will alert the user if they have left a required field blank. I would suggest showing the user that the field is required by marking it somehow in your form
+
+Requiring a <code><select></code> input is a bit different. To do this you'll need to adjust the name from something like 'cars[]' to 'required-cars[]' and then add an option similar to this:
+
+<pre>
+   <option value ="didnotchoose" selected>Choose One</option>
+</pre>
+      
+You can put anything you want in the 'Choose One' area. This will require the select to be used. You can read more about the select usage below.
+
+h3. Ignore Fields
+
+Many times developers use hidden input values during form submission. Another common factor (mostly seen in registration forms) is a terms and conditions text area. When filling out forms of this nature you typically do not want the user to 'review' this information. To hide these fields from the users review you can simply add "ignore" to the FRONT of the name. For example:
+
+<pre>
+   <textarea name="ignore-terms-and-conditions" rows="8" cols="40">Terms and conditions that go on and on and on and on....</textarea>
+</pre>
+      
+The script breaks down this name as "Terms and Conditions" and does not display it to the user. Ignored fields are, however, included in the emailed results. 
+
+
+h3. Email Validity
+
+Any field name with the string 'email' in it will be flagged as needing to be a valid email address. The standard regular expression is used to check for this validity. For example:
+
+<pre>
+   <input type="text" name="email-address" value="erik@erikreagan.com" id="email" />
+</pre>
+
+The script will flag this field as needing to validate as an email address because it sees 'email' in the name. It will display as "Email Address"
+
+<pre>
+   <input type="text" name="user-e-mail" value="erik@erikreagan.com" id="useremail" />
+</pre>
+
+The script will flag this field as needing to validate as an email address because it sees 'email' in the name. It will display as "User Email" because the hyphen is treated like every other hyphen and is replaced by a space
+
+<pre>
+   <input type="text" name="users-mail" value="erik@erikreagan.com" id="usersmail" />
+</pre>
+
+The script will NOT flag this field as needing to validate as an email address because there is no full string of 'email' in the name
+
+
+h3. Form Method & Action
+
+In order for this script to work without tweaking the core of the php the method of the form must be POST. For example:
+
+<pre>
+   <form name="form-name" method="post" action="path/to/process-form.php">
+</pre>
+
+Notice the action in the above example. This is what you should set the action to (but fill in YOUR path) if you are using the form processor as a standalone script. If you are using it inside your own site this may vary. You could leave it blank (action="") if the script is already loaded into the same page. I trust if you are including the script in your own template you can tweak the settings as needed.
+
+
+h3. Setting up Checkboxes and Selects for multiple options
+
+Many times you will need to allow the user to check multiple boxes or select multiple options. In order to process the results as ONE result you must tell the form and script that the results are lumped into an array. This is a simple process but if overlooked the results will not be pleasing
+
+<pre>
+   <p>Favorite Types of Cars</p>
+   <select name="car[]" id="car" multiple>
+      <option value ="Volvo">Volvo</option>
+      <option value ="Saab">Saab</option>
+      <option value ="Opel">Opel</option>
+      <option value ="Audi">Audi</option>
+   </select>
+</pre>
+      
+In this example the Select name is "car[]". The brackets are saying to the form "Put the following results into an array" and then when the results are being processed the script sees the array and displays the results as 1. For example if the user were to pick Volvo and Audi from the above example it would be displayed as "Volvo, Audi".
+
+You can achieve a similar result by using check boxes
+
+<pre>
+   Volvo <input type="checkbox" id="volvo" name="car[]" value="volvo" />
+   Saab <input type="checkbox" id="saab" name="car[]" value="saab" />
+   Opel <input type="checkbox" id="opel" name="car[]" value="opel" />
+   Audi <input type="checkbox" id="audi" name="car[]" value="audi" />
+</pre>
+
+
+h2. Setup & Customization - THE SCRIPT
+
+The configuration for the script is in the file process-from-settings.php. These variables should be modified to your preference. I DO NOT GUARANTEE SUPPORT OF ANY MODIFICATION OF THE ACTUAL SCRIPT! Let's take a look at each option. The default values are displayed below.
+
+
+h3. $usingTemplate = FALSE;
+
+This variable defines whether or not you are using the script by itself or within your design or site. The available options are simply 'TRUE' or 'FALSE'
+
+
+h3. $customForm = "path/to-your/form.php";
+
+This variable is commented out by default. If you set $usingTemplate to 'TRUE' then you can include your form within the process-form.php script by putting the path to your form here. The form.php file should contain only the form elements. There is no need for doctype, headers, etc because this (by default) includes your form within the script. This is not recommended because you would need to tweak the process-form.php file for design or style changes but I made it an option for those who are interested.
+
+h3. $emailRecipient = "recipient@theirmail.com";
+
+This is fairly obvious. One note, however, is acceptable formats. You could use the above format (handle@domain.com) or you can use a format such as "Erik Reagan <erik@erikreagan.com>". You can also string together multiple recipients by adding a comma between. Two examples:
+      
+* $emailRecipient = "erik@erikreagan.com, erik@idealdesignfirm.com";
+* $emailRecipient = "Erik Reagan <erik@erikreagan.com>, Big Dorky Guy <erik@idealdesignfirm.com>"
+
+h3. $bccRecipient = "another-email@domainname.com";
+
+This is for sending a blind carbon copy (bcc) to additional addresses
+
+h3. $forwardUser = TRUE;
+
+By default the script shows the user a success page and then using javascript to forward to a new location. If you do not want to forward the user for any reason set this value to 'false'.
+
+h3. $finalDestination = "http://mywebsite.com/thankyou.html";
+
+If $forwardUser is set to **TRUE** then this is the location you will forward them to. It can be as specific as above or it can be relative to your site. For example if you just want them to go to your homepage (assuming your homepage is somethinghere.com) you can set this value to "/".
+
+h3. $subject = 'My PHP Form';
+
+This is the subject of the email sent containing the results
+
+h3. $subjectIsInForm = FALSE;
+
+This is used if you are allowing the user to type in the subject
+
+h3. $subjectField = "required-subject";
+
+This is used to tell the script what the input field name is of the subject if the user is typing it in manually.
+
+h3. $fromName = "Your Name";
+
+This is the "From" Name when when sent.
+
+h3. $fromNameIsInForm = TRUE;
+
+This is the same function as $subjectIsInForm respective to the from name.
+
+h3. $fromNameField = "required-your-name";
+
+This is the same function as $subjectField respective to the from name field.
+
+h3. $fromEmail = "handle@domainname.com";
+
+This is the "From Email" address when sent.
+
+h3. $fromEmailIsInForm = TURE;
+
+This is the same function as $fromNameIsInField and $subjectIsInField respective to the from email field.
+
+h3. $fromEmailField = "required-your-email";
+
+This is the same function as $fromNameField and $subjectField respective to the from email field.
+
+h3. $includeTimestamp = TRUE;
+
+If set to true this adds the date and time at the end of the form results once emailed.
+
+h3. $includeBlankFields = TRUE;
+
+If set to true this includes fields that the user did not fill in and they are given a value of "[ left blank ]".
+
+h3. $emailHTML = TRUE;
+
+This allows you to define what type of email formatting is sent. Set this to false if you prefer plain text. A vast majority of email clients support the level of HTML that this script produces so I suggest leaving it where it is unless you really need plain text emails sent.
+
+h3. $headerTroubles = FALSE;
+
+This variable corrects an error some Unix servers have when processing email headers defined by PHP. If you are having issues with email headers try setting this to 'true' and submit the form again.
+    
+
+
+h2. Your Style Sheet
+
+
+If you choose to include this within your own template or design I've listed below the fields you may want to customize in your stylesheet(s). There are three portions to the display of the processed form. The main DIVS are 'top', 'results' and 'email'. 'top' contains the header only ("Form Results" & "Please Review Your Information") 'results' contains - you guessed it! - the results of the processed form. Keep in mind this COULD include error results. They are inside a DIV of their own nested inside of the 'results' div. 'email' contains the hidden fields while the user reviews their information. Also of note is that the Print, Email and Back buttons are inside this div. Here's the general layout (including just about every option):
+
+* #top
+* #top > h2
+* #top > h5
+
+* #results
+* #results > div.error
+* #results > div.error p
+* #results > div.error strong
+* #results > div.error ul
+* #results > div.error ul li
+* #results > div.error p a
+* #results > ul#display
+* #results > ul#display li
+* #results > ul#display li strong
+* #results > ul#display li span
+
+* #email
+* #email > input#print
+* #email > input#submit
+* #email > input#back
+
+
+
+h2. PHP Functions Used in script
+
+* array_key_exists()
+* count()
+* date()
+* define()
+* empty()
+* htmlspecialchars()
+* implode()
+* in_array()
+* is_array()
+* mail()
+* preg_replace()
+* stripslashes()
+* strstr()
+* strtolower()
+* str_replace()
+* ucwords()
+
+
+
+h2. Change log
+
++*2.0 Released September 26th, 2009*+
+
+* Moved settings into separate file
+* Added option to bypass Review/Print step
+* Converted comments and structure to PHPDoc
+* Converted variables from camelCase to underscore separated words
+* Converted readme to textile
+* Moved Change log into readme
+
+*1.5.1 Released July 5th, 2009*
+  
+* Cleaned up some of the code
+* Moved change log from README to individual file
+* Replaced ereg() email address validation with preg_match()
+* Fixed numerous bugs
+
+
+*1.5 Released June 5th, 2008*
+  
+* Added Feature: Text "Form not yet submitted" in red while user reviews form data
+* Added Feature: BCC field option in emailing results
+* Added Feature: User can now define Subject, From Name and From Email
+* Added Feature: Timestamp can be included in emailed results
+* Added Feature: Option to send empty fields as "[ left blank ]" or to not send them in the email at all
+* Added Feature: "click here" link added to redirect page upon form submission (just encase javascript is disabled)
+* Added Feature: Option to adjust headers for older Unix systems
+* Fixed Bug: Added option to fix older Unix systems 'bug' while processing PHP defined email headers
+* Fixed Bug: Plain text emails were showing "required" in the emailed results
+* Fixed Bug: didnotchoose was triggered 'required' even if it was not and was being displayed if it was selected among other options (in a 'multiple' circumstance)
+* Fixed Bug: Plain text html macro was incorrect 
+
+*1.0 Released May 7th, 2008*
+
+* Initial release
