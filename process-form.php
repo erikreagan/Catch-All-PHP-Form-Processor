@@ -1,211 +1,323 @@
 <?php
 
-/*
-  Catch-All PHP Form Processor by Erik Reagan
+error_reporting(E_ALL);
 
-  Version 1.5.1 dated July 5th, 2009
-  Author Site: http://erikreagan.com for support
-  Project Page: http://www.erikreagan.com/projects/2008/05/catch-all-php-form-processor/
-  For the most updated documentation and script visit the project page above
-*/
+/**
+ * @package Catch-All PHP Form Processor
+ * @version 2.0.0
+ * @author Erik Reagan <http://erikreagan.com>
+ * @copyright Copyright (c) 2008-2009 Erik Reagan
+ * @see http://www.erikreagan.com/projects/2008/05/catch-all-php-form-processor/
+ */
 
-// Configure These Variables
+require(dirname(__FILE__).'/process-form-settings.php');
 
-$usingTemplate      = FALSE;   // Set to true if you are using this form within your own site (a php include for example).
-$customForm         = "path/to-your/form.php";   // If you are using your own template or site define the path to your contact form which should be it's own .php file
-$emailRecipient     = "erik@erikreagan.com";   // The email address the form results should be sent to
-$bccRecipient       = "";   // The email address that you would like a blind carbon copy sent to (optional)
-$forwardUser        = TRUE;   // Set to false if you do NOT want to forward user to a new page or site after form completion
-$finalDestination   = "/";   // Page or website you would like the form to forward to once submitted
-$subject            = "My PHP Form";   // The Subject of the Email when it is sent
-$subjectIsInForm    = TRUE;   // Set to true if the email Subject is filled in by the user in your form. If set to true this overrides the preceeding $subject variable
-$subjectField       = "required-subject";  // If your subject is defined in your form put the field name here.
-$fromName           = "Your Name";   // "From" Name when when sent
-$fromNameIsInForm   = TRUE;   // Set to true if the Name the email results should be From is supplied in your form
-$fromNameField      = "required-your-name";   // If your from name is defined in your form put the field name here
-$fromEmail          = "yourhandle@domain.com";  // "From Email" address when sent. For multiple separate by comma (user1@domainname.com,user2@yahoo.com,etc@gmail.com)
-$fromEmailIsInForm  = TRUE;   // Set to true if the Email address the email results should be From is supplied in your form
-$fromEmailField     = "required-your-email";   // If your from email address is defined in your form put the field name here
-$includeTimestamp   = TRUE;   // Set to false if you do not want the date and timestamp included in your emailed results
-$includeBlankFields = TRUE;   // Set to false if you do not wish to email fields that aren't filled in 
-$emailHTML          = TRUE;   // Set to true if you prefer HTML formatted emails. Set to false if you prefer plain text. (HTML is widely accepted and looks much better)
-$headerTroubles     = FALSE;   // Only set this to true if youe email headers aren't being sent correctly from your server.
 
-////////////////////////////////////////////////////////////////////////////////////
-//   You shouldn't edit below this line unless you're familiar enough with PHP.   // 
-//        While this script is only an intermediate level of PHP I do not         //
-//       guarantee any support on modified files. Proceed at your own risk        //
-////////////////////////////////////////////////////////////////////////////////////
 
-define('EMAIL_RECIPIENT', $emailRecipient);
-define('BCC_RECIPIENT', $bccRecipient);
-define('FINAL_DESTINATION', $finalDestination);
-if ( $subjectIsInForm ) { define('SUBJECT', $_POST[$subjectField]); } else { define('SUBJECT', $subject); }
-if ( $fromNameIsInForm ) { define('FROM_NAME', $_POST[$fromNameField]); } else { define('FROM_NAME', $fromName); }
-if ( $fromEmailIsInForm ) { define('FROM_EMAIL', $_POST[$fromEmailField]); } else { define('FROM_EMAIL', $fromEmail); }
-if ( $headerTroubles ) { define('HEADER_TRAIL', "\n"); } else { define('HEADER_TRAIL', "\r\n"); }
+/**
+ * You shouldn't edit below this line unless you're familiar enough with PHP
+ * While this script is only an intermediate level of PHP I do not guarantee
+ * any support on modified files. Proceed at your own risk
+ */
 
-// Start by checking to see if we're emailing the final results
-if ( array_key_exists('emailnow', $_POST) ) {
-	// To send HTML mail, the Content-type header must be set
-	$headers  = 'MIME-Version: 1.0' . HEADER_TRAIL;
-	if ( ! $emailHTML ) {
-		$headers .= 'Content-type: text;' . HEADER_TRAIL;
-	} else {
-		$headers .= 'Content-type: text/html; charset=iso-8859-1' . HEADER_TRAIL;
-	}
 
-	// Additional headers
-	$headers .= "From: ".FROM_NAME." <".FROM_EMAIL.">" . HEADER_TRAIL;
-	$headers .= "Bcc: ".BCC_RECIPIENT . HEADER_TRAIL;
-	$title = SUBJECT;
-	// Timestamp for inclusion
-	$timestamp = date('M jS, Y')." at ".date('g:ia');
+/**
+ * Definitions from settings file
+ **/
+ 
+   define('USING_TEMPLATE', $using_template);
+   define('CUSTOM_FORM', $custom_form);
+   define('EMAIL_RECIPIENT', $email_recipient);
+   define('BCC_RECIPIENT', $bcc_recipient);
+   define('FORWARD_USER', $forward_user);
+   define('FINAL_DESTINATION', $final_destination);
 
-	if ( ! $emailHTML ) {
-		$message = "A new form has been submitted\n\n";
-		foreach($_POST as $field => $data) {
-			if ( is_array($data) ) { $data = implode(", ", $data); }
-			$field = strtolower(preg_replace("/[^a-zA-Z0-9s]/", " ", $field));
-			$field = str_replace('ignore ','',$field);
-			$field = ucwords(str_replace('required ', '', $field));
-			$message .= ((strtolower($field) == "submit") || (strtolower($field) == "emailnow")) ? "" : "\n$field\n   ".stripslashes($data)."\n";
-		}
-			if ( $timestamp ) { $message .= "\nForm Submitted on $timestamp\n"; }
-	} else {
-		$message = "	<html>
-		<head>
-		  <title>$title</title>
-		</head>
-		<body>
 
-		  <p>A new form has been submitted</p>
+   /**
+    * Subject
+    **/
+   if ( $subject_in_form )
+   {
+      define('SUBJECT', $_POST[$subject_field]);
+   } else {
+      define('SUBJECT', $subject);
+   }
 
-		  <table cellpadding='0' cellspacing= '0'>\n
-		";
-		foreach($_POST as $field => $data) {
-			if ( is_array($data) ) { $data = implode(", ", $data); }
-			$field = preg_replace('/[-_]/',' ',strtolower(str_replace('required','',$field)));
-         // $data = htmlspecialchars($data);
-			$message .= ((strtolower($field) == "submit") || (strtolower($field) == "emailnow")) ? "" : "    <tr style='margin:4px'>
-		      <td style='width:200px;border-bottom:1px solid #c0c0c0;'>".ucwords($field)."</td><td style='border-bottom: 1px solid #c0c0c0'>".stripslashes($data)."</td>
-		    </tr>\n
-		";
-		}
-		if ( $timestamp ) {
-			$message .= "    <tr style='margin:4px'>
-		      <td style='width:200px;border-bottom:1px solid #c0c0c0;'>Form Submitted on</td><td style='border-bottom: 1px solid #c0c0c0'>$date at $timestamp</td>
-		    </tr>\n
-		";
-		}
-		$message .= "
-		  </table>
 
-		</body>
-		</html>
-		";
-	}
+   /**
+    * From Name
+    **/
 
-	if ( mail(EMAIL_RECIPIENT, SUBJECT, $message, $headers) ) {
-		$block = "<div id=\"top\">\n\n<h2>Thank You</h2>\n\n</div>\n\n<p class=\"sent\">Your form has been submitted.\n";
-		if ( $forwardUser ) {
-			$block .= "If you are not redirected shortly please <a href=\"".FINAL_DESTINATION."\">click here</a>.</p>\n\n<script type=\"text/javascript\">setTimeout('window.location=\"".FINAL_DESTINATION."\"',5000)</script>\n";
-		} else { $block .= "</p>\n\n"; }
-	} else {
-		$block = "<div id=\"top\">\n\n<h2>I'm sorry</h2>\n\n</div>\n\n<p class=\"sent\">Your form has not been submitted. There may be a problem with the server. Please contact the administrator.\n";
-	}
+      if ( $from_name_in_form )
+      {
+         define('FROM_NAME', $_POST[$from_name_field]);
+      } else {
+         define('FROM_NAME', $from_name);
+      }
 
-// If it's not ready to email then run errors and display back form data
-} elseif ( array_key_exists('submit', $_POST) ){
+
+   /**
+    * From Email
+    **/
+
+      if ( $fromEmailIsInForm )
+      {
+         define('FROM_EMAIL', $_POST[$from_email_field]);
+      } else {
+         define('FROM_EMAIL', $from_email);
+      }
+      
+      
+      
+   define('BYPASS_REVIEW', $bypass_review);
+   define('INCLUDE_TIMESTAMP', $include_timestamp);
+   define('INCLUDE_BLANK_FIELDS', $include_blank_fields);
+   define('EMAIL_HTML', $email_html);
+
+   /**
+    * Header troubles. Some poor quality Unix mail transfer agents replace
+    * LF by CRLF automatically (which leads to doubling CR if CRLF is used).
+    * This should be a last resort, as it does not comply with RFC 2822. 
+    * @see http://us3.php.net/manual/en/function.mail.php
+    **/
+      if ( $headerTroubles )
+      {
+         define('HEADER_TRAIL', "\n");
+      } else {
+         define('HEADER_TRAIL', "\r\n");
+      }
+   
+
+
+
+
+
+
+
+if ( array_key_exists('submit', $_POST) )
+{
 	   
 	// Check required fields for any data
-	foreach ($_POST as $field => $data) {
+	foreach ($_POST as $field => $data)
+	{
 		$field = strtolower(preg_replace("/[^a-zA-Z0-9s]/", " ", $field));
-		if ( (strstr($field,'required')) && (empty($data)) ) {
+		if ( (strstr($field,'required')) && (empty($data)) )
+		{
 			$field = ucwords(str_replace('required','',$field));
 			$errors[] = "A required field was left blank: <strong>$field</strong>";
 		}
 		// Error checking on select boxes when the defailt is "didnotchoose" (see README)
-		if ( (is_array($data)) && (in_array('didnotchoose',$data)) && count($data) == 1 ) {
+		if ( (is_array($data)) && (in_array('didnotchoose',$data)) && count($data) == 1 )
+		{
 			$field = ucwords(str_replace('required','',$field));
 			$errors[] = "A required field was left blank: <strong>$field</strong>";
 		}
 	}
 	
 	// Check to standard email field to validate
-	foreach ($_POST as $field => $data) {
+	foreach ($_POST as $field => $data)
+	{
 		$field = strtolower(preg_replace("/[^a-zA-Z0-9s]/", "", $field));
 		$data = strtolower($data);
-		if ( (strstr($field,'email')) && (!empty($data)) && ( ! preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/", $data)) ) {
+		if ( (strstr($field,'email')) && (!empty($data)) && ( ! preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/", $data)) )
+		{
 			$errors[] = "This email address is not valid: <strong>$data</strong>";
 		}
 	}
-	
-	// Setup HTML display of form values
-	$title = "Form Results";
-	$block = "<div id=\"top\">\n    <h2>Form Results</h2>\n    <h5>Please Review Your Information</h5>\n    <h5 class=\"red\">Form Not Yet Submitted</h5>\n</div>\n\n<div id=\"results\">\n</div>\n\n<div id=\"results\">\n\n";
 
-	// Run the error report and display it if needed
-	if ( ! empty($errors) ) {
-		if ( count($errors) > 1 ) { $error_text = "Errors"; } else { $error_text = "Error"; }
-		$block .= " <div class=\"error\">\n   <p><strong>$error_text in Form</strong></p>\n";
-		$block .= "   <ul>";
-		foreach ($errors as $field => $data) {
-			$block .= "\n     <li>$data</li>";
-		}
-		$block .= "\n   </ul>\n   <p><a href=\"javascript:history.go(-1)\">Go back and try again.</a></p>\n </div>\n\n";
-	}
-	$block .= " <ul id=\"display\">";
+   
+   if ( (( ! empty($errors) ) || (BYPASS_REVIEW == FALSE)) && ( ! array_key_exists('senditalready', $_POST)) )
+   {
+      
+      // Setup HTML display of form values
+   	$title = "Form Results";
+   	$block = "<div id=\"top\">\n    <h2>Form Results</h2>\n    <h5>Please Review Your Information</h5>\n    <h5 class=\"red\">Form Not Yet Submitted</h5>\n</div>\n\n<div id=\"results\">\n</div>\n\n<div id=\"results\">\n\n";
+
+	   // Run the error report and display it if needed
+	   if ( ! empty($errors) )
+	   {
+		   if ( count($errors) > 1 )
+		   {
+		      $error_text = "Errors";
+		   } else {
+		      $error_text = "Error";
+		   }
+		   
+   		$block .= " <div class=\"error\">\n   <p><strong>$error_text in Form</strong></p>\n";
+   		$block .= "   <ul>";
+   		foreach ($errors as $field => $data)
+   		{
+   			$block .= "\n     <li>$data</li>";
+   		}
+   		$block .= "\n   </ul>\n   <p><a href=\"javascript:history.go(-1)\">Go back and try again.</a></p>\n </div>\n\n";
+   	}
+
+	   $block .= " <ul id=\"display\">";
 	
 	
-	foreach($_POST as $field => $data) {
-		$field = preg_replace('/[-_]/',' ',strtolower(str_replace('required','',$field)));
-		if ( ! strstr($field,'ignore') ) {
-			// Parse out arrays comma-separated
-			if ( is_array($data) ) { $data = implode(", ", $data); }
-			$data = str_replace('didnotchoose, ', '', $data);
-         // $data = htmlspecialchars($data);
-			if ( ($data == "") || ($data == "didnotchoose") ) { $data = "<strong>[ left blank ]</strong>"; }
-         if ( strtolower($field) != "submit" ) {
-            $block .= "\n   <li><strong>".str_replace('ignore', '', ucwords($field)). ":</strong> <span>".stripslashes($data)."</span></li>";
-         }
-		}
-	}
-	$block .= "\n  </ul>\n\n</div>\n\n";
-	// Setup hidden form for email submission 
-	$block .= "<div id=\"email\">\n    <form name=\"emailit\" action=\"\" method=\"post\" accept-charset=\"utf-8\">\n";
-	$block .= "\t<input type='hidden' name='emailnow' value='emailnow' id='emailnow' />\n";
-	foreach ($_POST as $field => $data) {
-		if ( is_array($data) ) { $data = implode(", ", $data);	}
-		$value = str_replace('didnotchoose, ', '', $data);
-		if ( $data == "" ) { $data = "[ left blank ]"; }
-		if ( ! $includeBlankFields ) {
-			if ( ($field !== "submit") && ($data !== "[ left blank ]") ) {
-				$block .= "\t<input type=\"hidden\" name=\"".$field."\" value=\"".htmlspecialchars(stripslashes($value))."\" id=\"".$field."\" />\n";
-			}
-		} else { 
-			if ( $field !== "submit" ) {
-				$block .= "\t<input type=\"hidden\" name=\"".$field."\" value=\"".htmlspecialchars(stripslashes($value))."\" id=\"".$field."\" />\n";
-			}
-		}
-	}
+   	foreach($_POST as $field => $data)
+   	{
+   		$field = preg_replace('/[-_]/',' ',strtolower(str_replace('required','',$field)));
+   		if ( ! strstr($field,'ignore') )
+   		{
+   			// Parse out arrays comma-separated
+   			if ( is_array($data) )
+   			{
+   			   $data = implode(", ", $data);
+   			}
+   			
+   			$data = str_replace('didnotchoose, ', '', $data);
+            // $data = htmlspecialchars($data);
+   			if ( ($data == "") || ($data == "didnotchoose") )
+   			{
+   			   $data = "<strong>[ left blank ]</strong>";
+   			}
+            
+            if ( strtolower($field) != "submit" )
+            {
+               $block .= "\n   <li><strong>".str_replace('ignore', '', ucwords($field)). ":</strong> <span>".stripslashes($data)."</span></li>";
+            }
+   		}
+	   }
+	   
+   	$block .= "\n  </ul>\n\n</div>\n\n";
+   	// Setup hidden form for email submission 
+
+   	$block .= "<div id=\"email\">\n    <form name=\"emailit\" action=\"\" method=\"post\" accept-charset=\"utf-8\">\n";
+   	
+   	$block .= "\t<input type='hidden' name='senditalready' value='goforit' id='goforit' />\n";
+
+   	foreach ($_POST as $field => $data)
+   	{
+   		if ( is_array($data) )
+   		{
+   		   $data = implode(", ", $data);
+   		}
+   		
+   		$value = str_replace('didnotchoose, ', '', $data);
+   		
+   		if ( $data == "" )
+   		{
+   		   $data = "[ left blank ]";
+   		}
+   		
+   		if ( ! INCLUDE_BLANK_FIELDS )
+   		{
+   			if ( ($field !== "submit") && ($data !== "[ left blank ]") )
+   			{
+   				$block .= "\t<input type=\"hidden\" name=\"".$field."\" value=\"".htmlspecialchars(stripslashes($value))."\" id=\"".$field."\" />\n";
+   			}
+   		} else { 
+   			if ( $field !== "submit" )
+   			{
+   				$block .= "\t<input type=\"hidden\" name=\"".$field."\" value=\"".htmlspecialchars(stripslashes($value))."\" id=\"".$field."\" />\n";
+   			}
+   		}
+   	}
 	
-	if ( ! empty($errors) ) {
-		$block .= "\t<p><input type=\"button\" name=\"back\" value=\"Go Back\" id=\"back\" onclick=\"history.go(-1);\" /></p>\n    </form>\n</div>\n";
-	} else {
-		$block .= "\t<p><input type=\"button\" name=\"print\" value=\"Print Results\" id=\"print\" onclick=\"window.print();\" /><input type=\"submit\" name=\"submit\" value=\"Send Results\" id=\"submit\" /></p>\n    </form>\n</div>\n";
-	}
-	
+   	if ( ! empty($errors) )
+   	{
+   		$block .= "\t<p><input type=\"button\" name=\"back\" value=\"Go Back\" id=\"back\" onclick=\"history.go(-1);\" /></p>\n    </form>\n</div>\n";
+   	} else {
+   		$block .= "\t<p><input type=\"button\" name=\"print\" value=\"Print Results\" id=\"print\" onclick=\"window.print();\" /><input type=\"submit\" name=\"submit\" value=\"Send Results\" id=\"submit\" /></p>\n    </form>\n</div>\n";
+   	}
+
+   } else {
+   
+      // To send HTML mail, the Content-type header must be set
+   	$headers  = 'MIME-Version: 1.0' . HEADER_TRAIL;
+   	if ( ! EMAIL_HTML )
+   	{
+   		$headers .= 'Content-type: text;' . HEADER_TRAIL;
+   	} else {
+   		$headers .= 'Content-type: text/html; charset=iso-8859-1' . HEADER_TRAIL;
+   	}
+
+   	// Additional headers
+   	$headers .= "From: ".FROM_NAME." <".FROM_EMAIL.">" . HEADER_TRAIL;
+   	$headers .= "Bcc: ".BCC_RECIPIENT . HEADER_TRAIL;
+   	$title = SUBJECT;
+   	// Timestamp for inclusion
+   	$timestamp = date('M jS, Y')." at ".date('g:ia');
+
+   	if ( ! EMAIL_HTML )
+   	{
+   		$message = "A new form has been submitted\n\n";
+   		foreach($_POST as $field => $data) {
+   			if ( is_array($data) ) { $data = implode(", ", $data); }
+   			$field = strtolower(preg_replace("/[^a-zA-Z0-9s]/", " ", $field));
+   			$field = str_replace('ignore ','',$field);
+   			$field = ucwords(str_replace('required ', '', $field));
+   			$message .= ((strtolower($field) == "submit") || (strtolower($field) == "emailnow")) ? "" : "\n$field\n   ".stripslashes($data)."\n";
+   		}
+		
+   		if ( INCLUDE_TIMESTAMP )
+   		{
+   		   $message .= "\nForm Submitted on $timestamp\n";
+   		}
+   	} else {
+   		$message = "	<html>
+   		<head>
+   		  <title>$title</title>
+   		</head>
+   		<body>
+
+   		  <p>A new form has been submitted</p>
+
+   		  <table cellpadding='0' cellspacing= '0'>\n
+   		";
+   		foreach($_POST as $field => $data)
+   		{
+   			if ( is_array($data) )
+   			{
+   			   $data = implode(", ", $data);
+   			}
+   			$field = preg_replace('/[-_]/',' ',strtolower(str_replace('required','',$field)));
+            // $data = htmlspecialchars($data);
+   			$message .= ((strtolower($field) == "submit") || (strtolower($field) == "emailnow")) ? "" : "    <tr style='margin:4px'>
+   		      <td style='width:200px;border-bottom:1px solid #c0c0c0;'>".ucwords($field)."</td><td style='border-bottom: 1px solid #c0c0c0'>".stripslashes($data)."</td>
+   		    </tr>\n
+   		";
+   		}
+   		if ( INCLUDE_TIMESTAMP )
+   		{
+   			$message .= "    <tr style='margin:4px'>
+   		      <td style='width:200px;border-bottom:1px solid #c0c0c0;'>Form Submitted on</td><td style='border-bottom: 1px solid #c0c0c0'>$timestamp</td>
+   		    </tr>\n
+   		";
+   		}
+   		$message .= "
+   		  </table>
+
+   		</body>
+   		</html>
+   		";
+   	}
+
+   	if ( mail(EMAIL_RECIPIENT, SUBJECT, $message, $headers) )
+   	{
+   		$block = "<div id=\"top\">\n\n<h2>Thank You</h2>\n\n</div>\n\n<p class=\"sent\">Your form has been submitted.\n";
+   		if ( FORWARD_USER ) {
+   			$block .= "If you are not redirected shortly please <a href=\"".FINAL_DESTINATION."\">click here</a>.</p>\n\n<script type=\"text/javascript\">setTimeout('window.location=\"".FINAL_DESTINATION."\"',5000)</script>\n";
+   		} else { $block .= "</p>\n\n"; }
+   	} else {
+   		$block = "<div id=\"top\">\n\n<h2>I'm sorry</h2>\n\n</div>\n\n<p class=\"sent\">Your form has not been submitted. There may be a problem with the server. Please contact the administrator.\n";
+   	}
+
+   }
+   
 } else {
-	if ( ! $usingTemplate ) {
-		$block = "\n<p>There was an error processing the form.<p>\n\n";
-	} else {
-		include($customForm);
-	}
+   if ( ! USING_TEMPLATE )
+   {
+   	$block = "\n<p>There was an error processing the form.<p>\n\n";
+   } else {
+   	include(CUSTOM_FORM);
+   }
 }
 
+if ( ! USING_TEMPLATE ) :
 
-if ( ! $usingTemplate ) : ?>
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -298,11 +410,15 @@ p.sent { margin: 80px 14px 14px 14px; }
 <![endif]-->
 </head>
 <body>
-<?php endif;
+<?php
+
+endif;
 
 echo $block;
 
-if ( ! $usingTemplate ) : ?>
+if ( ! USING_TEMPLATE ) :
+
+?>
 </body>
 </html>
-<?php endif ?>
+<?php endif; ?>
