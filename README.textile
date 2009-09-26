@@ -312,7 +312,15 @@ h2. PHP Functions Used in script
 
 h2. Change log
 
-+*2.0 Released September 26th, 2009*+
++*2.0.1 Released September 26th 2009*+
+
+* Corrected default settings
+* Corrected use of $custom_form
+* Updated README.textile with correct variables after changing from camelCast
+* Corrected a few typos
+* tagged in GitHub at the right time as 2.0.1
+
+*2.0.0 Released September 26th, 2009*
 
 * Moved settings into separate file
 * Added option to bypass Review/Print step
