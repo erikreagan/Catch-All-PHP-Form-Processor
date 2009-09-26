@@ -4,8 +4,7 @@ Catch-all PHP Form Processor is a two file PHP script that can capture virtually
 
 h2. Credits
 
-Developed by Erik Reagan, http://erikreagan.com
-
+Developed by Erik Reagan, <a href="http://erikreagan.com">http://erikreagan.com</a>
 
 h2. Introduction
 
@@ -86,8 +85,8 @@ h3. Require Fields
 
 If you have fields you need to require (such as name, email, etc) you can simple append "require" to the FRONT of the name. For example:
 
-<pre>  
-  <input type="text" name="require-first-name" id="first-name" value="Erik Reagan" />
+<pre>
+   <input type="text" name="require-first-name" id="first-name" value="Erik Reagan" />
 </pre>
 
 This will alert the user if they have left a required field blank. I would suggest showing the user that the field is required by marking it somehow in your form
@@ -147,7 +146,7 @@ Notice the action in the above example. This is what you should set the action t
 
 h3. Setting up Checkboxes and Selects for multiple options
 
-Many times you will need to allow the user to check multiple boxes or select multiple options. In order to process the results as ONE result you must tell the form and script that the results are lumped into an array. This is a simple process but if overlooked the results will not be pleasing
+Many times you will need to allow the user to check multiple boxes or select multiple options. In order to process the results as *one* result you must tell the form and script that the results are lumped into an array. This is a simple process but if overlooked the results will not be pleasing
 
 <pre>
    <p>Favorite Types of Cars</p>
@@ -173,88 +172,92 @@ You can achieve a similar result by using check boxes
 
 h2. Setup & Customization - THE SCRIPT
 
-The configuration for the script is in the file process-from-settings.php. These variables should be modified to your preference. I DO NOT GUARANTEE SUPPORT OF ANY MODIFICATION OF THE ACTUAL SCRIPT! Let's take a look at each option. The default values are displayed below.
+The configuration for the script is in the file process-from-settings.php. These variables should be modified to your preference. *I do not guarantee support of any modification of the actual script!* Let's take a look at each option. The default values are displayed below.
 
 
-h3. $usingTemplate = FALSE;
+h3. $using_template = FALSE;
 
-This variable defines whether or not you are using the script by itself or within your design or site. The available options are simply 'TRUE' or 'FALSE'
+This variable defines whether or not you are using the script by itself or within your design or site. The available options are simply *TRUE* or *FALSE*
 
 
-h3. $customForm = "path/to-your/form.php";
+h3. $custom_form = "path/to-your/form.php";
 
-This variable is commented out by default. If you set $usingTemplate to 'TRUE' then you can include your form within the process-form.php script by putting the path to your form here. The form.php file should contain only the form elements. There is no need for doctype, headers, etc because this (by default) includes your form within the script. This is not recommended because you would need to tweak the process-form.php file for design or style changes but I made it an option for those who are interested.
+If you set $using_template to *TRUE* then you can include your form within the process-form.php script by putting the path to your form here. You would then access the form page by the process-form.php page directly or by using something like include('process-form.php') on your site.
 
-h3. $emailRecipient = "recipient@theirmail.com";
+h3. $email_recipient = "recipient@theirmail.com";
 
 This is fairly obvious. One note, however, is acceptable formats. You could use the above format (handle@domain.com) or you can use a format such as "Erik Reagan <erik@erikreagan.com>". You can also string together multiple recipients by adding a comma between. Two examples:
       
-* $emailRecipient = "erik@erikreagan.com, erik@idealdesignfirm.com";
-* $emailRecipient = "Erik Reagan <erik@erikreagan.com>, Big Dorky Guy <erik@idealdesignfirm.com>"
+* $email_recipient = "erik@erikreagan.com, erik@idealdesignfirm.com";
+* $email_recipient = "Erik Reagan <erik@erikreagan.com>, Big Dorky Guy <erik@idealdesignfirm.com>"
 
-h3. $bccRecipient = "another-email@domainname.com";
+h3. $bcc_recipient = "another-email@domainname.com";
 
 This is for sending a blind carbon copy (bcc) to additional addresses
 
-h3. $forwardUser = TRUE;
+h3. $forward_user = TRUE;
 
-By default the script shows the user a success page and then using javascript to forward to a new location. If you do not want to forward the user for any reason set this value to 'false'.
+By default the script shows the user a success page and then using javascript to forward to a new location. If you do not want to forward the user for any reason set this value to *FALSE*.
 
-h3. $finalDestination = "http://mywebsite.com/thankyou.html";
+h3. $final_destination = "http://mywebsite.com/thankyou.html";
 
-If $forwardUser is set to **TRUE** then this is the location you will forward them to. It can be as specific as above or it can be relative to your site. For example if you just want them to go to your homepage (assuming your homepage is somethinghere.com) you can set this value to "/".
+If $forward_user is set to *TRUE* then this is the location you will forward them to. It can be as specific as above or it can be relative to your site. For example if you just want them to go to your homepage (assuming your homepage is somethinghere.com) you can set this value to "/".
 
 h3. $subject = 'My PHP Form';
 
 This is the subject of the email sent containing the results
 
-h3. $subjectIsInForm = FALSE;
+h3. $subject_in_form = FALSE;
 
 This is used if you are allowing the user to type in the subject
 
-h3. $subjectField = "required-subject";
+h3. $subject_field = "required-subject";
 
 This is used to tell the script what the input field name is of the subject if the user is typing it in manually.
 
-h3. $fromName = "Your Name";
+h3. $from_name = "Your Name";
 
 This is the "From" Name when when sent.
 
-h3. $fromNameIsInForm = TRUE;
+h3. $from_name_in_form = TRUE;
 
-This is the same function as $subjectIsInForm respective to the from name.
+This is the same function as $subject_in_form respective to the from name.
 
-h3. $fromNameField = "required-your-name";
+h3. $from_name_field = "required-your-name";
 
-This is the same function as $subjectField respective to the from name field.
+This is the same function as $subject_field respective to the from name field.
 
-h3. $fromEmail = "handle@domainname.com";
+h3. $from_email = "handle@domainname.com";
 
 This is the "From Email" address when sent.
 
-h3. $fromEmailIsInForm = TURE;
+h3. $from_email_in_form = TURE;
 
-This is the same function as $fromNameIsInField and $subjectIsInField respective to the from email field.
+This is the same function as $from_name_in_field and $subject_in_field respective to the from email field.
 
-h3. $fromEmailField = "required-your-email";
+h3. $from_email_field = "required-your-email";
 
-This is the same function as $fromNameField and $subjectField respective to the from email field.
+This is the same function as $from_name_field and $subject_field respective to the from email field.
 
-h3. $includeTimestamp = TRUE;
+h3. $bypass_review = FALSE;
 
-If set to true this adds the date and time at the end of the form results once emailed.
+If you want to skip the Review/Print screen this can be set to *TRUE*.
 
-h3. $includeBlankFields = TRUE;
+h3. $include_timestamp = TRUE;
 
-If set to true this includes fields that the user did not fill in and they are given a value of "[ left blank ]".
+If set to *TRUE* this adds the date and time at the end of the form results once emailed.
 
-h3. $emailHTML = TRUE;
+h3. $include_blank_fields = TRUE;
 
-This allows you to define what type of email formatting is sent. Set this to false if you prefer plain text. A vast majority of email clients support the level of HTML that this script produces so I suggest leaving it where it is unless you really need plain text emails sent.
+If set to *TRUE* this includes fields that the user did not fill in and they are given a value of "[ left blank ]".
 
-h3. $headerTroubles = FALSE;
+h3. $email_html = TRUE;
 
-This variable corrects an error some Unix servers have when processing email headers defined by PHP. If you are having issues with email headers try setting this to 'true' and submit the form again.
+This allows you to define what type of email formatting is sent. Set this to *FALSE* if you prefer plain text. A vast majority of email clients support the level of HTML that this script produces so I suggest leaving it where it is unless you really need plain text emails sent.
+
+h3. $header_troubles = FALSE;
+
+This variable corrects an error some Unix servers have when processing email headers defined by PHP. If you are having issues with email headers try setting this to *TRUE* and submit the form again.
     
 
 

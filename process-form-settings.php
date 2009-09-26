@@ -21,16 +21,17 @@
 /**
  * Set to true if you are using this form within your own
  * site (a php include for example)
- * @var string
+ * @var bool
  */
    
-   $using_template      = TRUE;
+   $using_template      = FALSE;
 
 
 
 /**
  * If you are using your own template or site design, define the
  * path to your contact form which should be it's own .php file
+ * Will only be called if $using_template is set to TRUE
  * @var string
  */
    
@@ -44,7 +45,7 @@
  * @var string
  */
  
-   $email_recipient     = "erik@erikreagan.com";
+   $email_recipient     = "yourname@yourdomain.com";
    $bcc_recipient       = "";   // Optional
 
 
@@ -107,7 +108,7 @@
  */
 
    $bypass_review          = FALSE;  // Set to TRUE if you want to bypass the review/print screen
-   $include_timestame      = TRUE;   // Set to FALSE if you do not want the time/date included in the message
+   $include_timestamp      = TRUE;   // Set to FALSE if you do not want the time/date included in the message
    $include_blank_fields   = TRUE;   // Set to FALSE if you do not wish to email fields that aren't filled in 
    $email_html             = TRUE;   // TRUE sends email in HTML; FALSE sends email in plain text
    $header_troubles        = FALSE;  // Only set this to TRUE if youe email headers aren't being sent correctly from your server.
