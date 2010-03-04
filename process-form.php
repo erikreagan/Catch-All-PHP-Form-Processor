@@ -2,7 +2,7 @@
 
 /**
  * @package Catch-All PHP Form Processor
- * @version 2.0.0
+ * @version 2.0.2
  * @author Erik Reagan <http://erikreagan.com>
  * @copyright Copyright (c) 2008-2009 Erik Reagan
  * @see http://www.erikreagan.com/projects/2008/05/catch-all-php-form-processor/
@@ -46,24 +46,24 @@ require(dirname(__FILE__).'/process-form-settings.php');
     * From Name
     **/
 
-      if ( $from_name_in_form )
-      {
-         define('FROM_NAME', $_POST[$from_name_field]);
-      } else {
-         define('FROM_NAME', $from_name);
-      }
+   if ( $from_name_in_form )
+   {
+      define('FROM_NAME', $_POST[$from_name_field]);
+   } else {
+      define('FROM_NAME', $from_name);
+   }
 
 
    /**
     * From Email
     **/
 
-      if ( $fromEmailIsInForm )
-      {
-         define('FROM_EMAIL', $_POST[$from_email_field]);
-      } else {
-         define('FROM_EMAIL', $from_email);
-      }
+   if ( $fromEmailIsInForm )
+   {
+      define('FROM_EMAIL', $_POST[$from_email_field]);
+   } else {
+      define('FROM_EMAIL', $from_email);
+   }
       
       
       
@@ -78,12 +78,12 @@ require(dirname(__FILE__).'/process-form-settings.php');
     * This should be a last resort, as it does not comply with RFC 2822. 
     * @see http://us3.php.net/manual/en/function.mail.php
     **/
-      if ( $headerTroubles )
-      {
-         define('HEADER_TRAIL', "\n");
-      } else {
-         define('HEADER_TRAIL', "\r\n");
-      }
+   if ( $headerTroubles )
+   {
+      define('HEADER_TRAIL', "\n");
+   } else {
+      define('HEADER_TRAIL', "\r\n");
+   }
    
 
 
@@ -124,7 +124,7 @@ if ( array_key_exists('submit', $_POST) )
 	}
 
    
-   if ( (( ! empty($errors) ) || (BYPASS_REVIEW == FALSE)) && ( ! array_key_exists('senditalready', $_POST)) )
+   if ( (( ! empty($errors) ) || (BYPASS_REVIEW === FALSE)) && ( ! array_key_exists('senditalready', $_POST)) )
    {
       
       // Setup HTML display of form values

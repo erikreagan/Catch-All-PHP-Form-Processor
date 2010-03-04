@@ -312,7 +312,11 @@ h2. PHP Functions Used in script
 
 h2. Change log
 
-+*2.0.1 Released September 26th, 2009*+
++*2.0.2 Released March 3rd, 2010*+
+
+* Fixed bug where $from_name_field was not correctly set in process-form-settings.php
+
+*2.0.1 Released September 26th, 2009*
 
 * Corrected default settings
 * Corrected use of $custom_form

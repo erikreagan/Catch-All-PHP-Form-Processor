@@ -2,7 +2,7 @@
 
 /**
  * @package Catch-All PHP Form Processor
- * @version 2.0.0
+ * @version 2.0.1
  * @author Erik Reagan <http://erikreagan.com>
  * @copyright Copyright (c) 2008-2009 Erik Reagan
  * @see http://www.erikreagan.com/projects/2008/05/catch-all-php-form-processor/
@@ -82,7 +82,7 @@
  
    $from_name_in_form   = TRUE;   // Set to true if the Name the email results should be From is supplied in your form
    $from_name           = "Your Name";   // "From" Name when when sent
-   $from_nameField      = "required-your-name";   // If your from name is defined in your form put the field name here
+   $from_name_field      = "required-your-name";   // If your from name is defined in your form put the field name here
 
 
 /**
