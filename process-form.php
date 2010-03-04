@@ -281,10 +281,6 @@ if ( array_key_exists('submit', $_POST) )
    		</html>
    		";
    	}
-      echo "<pre>";
-      print_r($message);
-      echo "</pre>";
-      exit;
       
    	if ( mail(EMAIL_RECIPIENT, SUBJECT, $message, $headers) )
    	{
