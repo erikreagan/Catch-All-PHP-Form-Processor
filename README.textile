@@ -315,6 +315,7 @@ h2. Change log
 +*2.0.2 Released March 3rd, 2010*+
 
 * Fixed bug where $from_name_field was not correctly set in process-form-settings.php
+* Fixed bug where POST key 'senditalready' was included in form
 
 *2.0.1 Released September 26th, 2009*
 

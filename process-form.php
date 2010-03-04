@@ -216,6 +216,9 @@ if ( array_key_exists('submit', $_POST) )
    	}
 
    } else {
+      
+      // Unset key 'senditalready'
+      unset($_POST['senditalready']);
    
       // To send HTML mail, the Content-type header must be set
    	$headers  = 'MIME-Version: 1.0' . HEADER_TRAIL;
@@ -231,6 +234,7 @@ if ( array_key_exists('submit', $_POST) )
    	if ( ! EMAIL_HTML )
    	{
    		$message = "A new form has been submitted\n\n";
+   		
    		foreach($_POST as $field => $data) {
    			if ( is_array($data) ) { $data = implode(", ", $data); }
    			$field = strtolower(preg_replace("/[^a-zA-Z0-9s]/", " ", $field));
@@ -277,7 +281,11 @@ if ( array_key_exists('submit', $_POST) )
    		</html>
    		";
    	}
-
+      echo "<pre>";
+      print_r($message);
+      echo "</pre>";
+      exit;
+      
    	if ( mail(EMAIL_RECIPIENT, SUBJECT, $message, $headers) )
    	{
    		$block = "<div id=\"top\">\n\n<h2>Thank You</h2>\n\n</div>\n\n<p class=\"sent\">Your form has been submitted.\n";
