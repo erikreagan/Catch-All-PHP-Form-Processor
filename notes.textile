@@ -1,0 +1,7 @@
+h1. Notes for thought
+
+
+* Do I really need the settings array created in the constructor?
+* write case for select options, submit and textareas for create_field() method
+* add in id and class vars to the create_field() method
+* add auto-increment to create_field() ids if the $name has the '[]' string (indicating an array)
