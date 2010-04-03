@@ -2,6 +2,9 @@ h1. Notes for thought
 
 
 * Do I really need the settings array created in the constructor?
-* write case for select options, submit and textareas for create_field() method
+* write case for submit and textareas for create_field() method
 * add in id and class vars to the create_field() method
 * add auto-increment to create_field() ids if the $name has the '[]' string (indicating an array)
+* build show_review_results() and show_errors() out
+* breakout error and results processing from show_review_results() and show_errors() so the functions can remind abstracted (DRY!!!)
+* add language support ??

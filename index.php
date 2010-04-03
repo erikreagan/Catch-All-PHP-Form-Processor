@@ -20,17 +20,15 @@ require 'catch_all.php';
 
 $form = new Catch_all;
 
-echo "<pre>";
-print_r($form->results);
-echo "</pre>";
+// $form->show_review_results('ul_id','ul_class');
 
-
+$form->show_errors('ul_id','ul_class');
 
 ?>
 <form action="" method="post" accept-charset="utf-8">
 	<p>First Name: <?php echo $form->create_field('required_first_name','Erik','text')?></p>
-	<p>Last Name: <?php echo $form->create_field('required_last_name','Reagan','text')?></p>
-	<p>Email Address: <?php echo $form->create_field('email_address','erik@idealdesignfirm.com','text')?><br/></p>
+	<p>Last Name: <?php echo $form->create_field('required_last_name','','text')?></p>
+	<p>Email Address: <?php echo $form->create_field('email_address','erikidealdesignfirm.com','text')?><br/></p>
 	<p>Are you over 18?</p>
 	<p><?php echo $form->create_field('are_you_over_18','Yes','radio')?>Yes</p>
 	<p><?php echo $form->create_field('are_you_over_18','No','radio')?>No<br/></p>
@@ -42,10 +40,10 @@ echo "</pre>";
 	<p><?php echo $form->create_field('vehicle[]','Airplane','checkbox')?> I have an airplane:<br/></p>
 	<p>Favorite Types of Cars</p>
 	<p><?php echo $form->create_select_open('car[]',TRUE)?> 
-	<option value ="Volvo" <?php echo $form->is_selected('car','Volvo',TRUE,'selected')?>>Volvo</option>
-	<option value ="Saab" <?php echo $form->is_selected('car','Saab',TRUE,'selected')?>>Saab</option>
-	<option value ="Opel" <?php echo $form->is_selected('car','Opel',TRUE,'selected')?>>Opel</option>
-	<option value ="Audi" <?php echo $form->is_selected('car','Audi',TRUE,'selected')?>>Audi</option>
+	<?php echo $form->create_field('car[]',array('Volvo','Volvo'),'option')?> 
+	<?php echo $form->create_field('car[]',array('Saab','Saab'),'option')?> 
+	<?php echo $form->create_field('car[]',array('Opel','Opel'),'option')?> 
+	<?php echo $form->create_field('car[]',array('Audi','Audi'),'option')?> 
 	<?php echo $form->create_select_close()?></p>
 	<p><input type="submit" name="submit" value="Submit Results" /></p>
 </form>

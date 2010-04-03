@@ -86,6 +86,9 @@ class Catch_all
     **/
    public function sanitize_post($post_array)
    {
+      
+      // No need to use the submit field
+      unset($post_array['submit']);
 
       // We loop through our post array to sanitize each field that was submitted
       foreach ($post_array as $key => $value) {
@@ -126,7 +129,10 @@ class Catch_all
    public function create_field($name = 'field', $default_value = NULL, $type = 'text')
    {
       
+      // Start our field string so we can add to it as we build the field
       $field = '';
+      
+      // We need to know if we're supposed to treat a field value as a string or an array
       if (strpos($name,'[]') !== FALSE)
       {
          $name_key = str_replace('[]','',$name);
@@ -138,8 +144,7 @@ class Catch_all
          $array_boolean = FALSE;
       }
       
-      
-      
+      // Now we build the field based on what type of input we have at hand
       switch ($type) {
          case 'textarea':
             echo 'textarea';
@@ -151,13 +156,20 @@ class Catch_all
             $field .=' />';
             break;
             
+         case 'option':
+            $field .= (is_array($default_value)) ? '<option value ="'.$default_value[0].'"' : '<option value="'.$default_value.'"' ;
+            $check_default_value = (is_array($default_value)) ? $default_value[0] : $default_value ;
+            $field .= $this->is_selected($name_key,$check_default_value,$array_boolean,'selected');
+            $field .= (is_array($default_value)) ? '>'.$default_value[1].'</option>' : '>'.$default_value.'</option>' ;
+            break;
+            
          case 'checkbox':
             $field .= '<input type="'.$type.'" name="'.$name.'" id="'.$id.'" value="'.$default_value.'"';
-            $field .= $this->is_selected($name_key,$default_value,TRUE);
+            $field .= $this->is_selected($name_key,$default_value,$array_boolean);
             $field .=' />';
             break;
          
-         
+         // Out default is "text" (as seen in the method arguments above)
          default:
             $field .= '<input type="'.$type.'" name="'.$name.'" id="'.$id.'" value="';
             $field .= $this->get_field($name_key,TRUE,$default_value);
@@ -242,6 +254,127 @@ class Catch_all
       } else {
          return (array_key_exists($haystack, $this->results) && $this->results[$haystack] == $needle) ? ' '.$attribute.'="'.$attribute.'"' : '' ;
       }
+      
+   }
+   
+   
+   
+   /**
+    * Display results from a submitted form
+    *
+    * @return echo string
+    * @author Erik Reagan
+    **/
+   public function show_review_results($id = FALSE, $class = FALSE)
+   {
+      
+      // If our results array is empty then we don't move any further
+      if ( ! count($this->results > 0))
+      {
+         return;
+      }
+      
+      
+      // Configure our unordered list ID and CLASS if applicable
+      $ul_properties = '';
+      if ($id || $class)
+      {
+         $id = ($id) ? ' id="'.$id.'"' : '' ;
+         $class = ($class) ? ' class="'.$class.'"' : '' ;
+         $ul_properties = $id.$class;
+      }
+      
+      $results_block = "<ul{$ul_properties}>";
+      
+      foreach ($this->results as $key => $value) {
+         $key = preg_replace('/[-_]/',' ',strtolower(str_replace('required','',$key)));
+         // Don't return any of the fields we are supposed to ignore
+   		if ( ! strstr($key,'ignore') )
+   		{
+   			// Parse out arrays comma-separated
+   			if ( is_array($value) )
+   			{
+   			   $value = implode(", ", $value);
+   			}
+   			
+   			$value = str_replace('didnotchoose, ', '', $value);
+
+   			if ( ($value == "") || ($value == "didnotchoose") )
+   			{
+   			   $value = "<strong>[ left blank ]</strong>";
+   			}
+            
+            $results_block .= "\n   <li><strong>".str_replace('ignore', '', ucwords($key)). ":</strong> <span>".stripslashes($value)."</span></li>";
+   		}
+      }
+      
+      $results_block .= "\n</ul>\n\n";
+      
+      echo $results_block;
+      
+   }
+   
+   
+   
+   /**
+    * Display errors from a submitted form
+    *
+    * @return echo string
+    * @author Erik Reagan
+    **/
+   public function show_errors($id = FALSE, $class = FALSE)
+   {
+      
+      // If our results array is empty then we don't move any further
+      if ( ! count($this->results > 0))
+      {
+         return;
+      }
+      
+      
+      // Configure our unordered list ID and CLASS if applicable
+      $ul_properties = '';
+      if ($id || $class)
+      {
+         $id = ($id) ? ' id="'.$id.'"' : '' ;
+         $class = ($class) ? ' class="'.$class.'"' : '' ;
+         $ul_properties = $id.$class;
+      }
+      
+      $errors_block = "<ul{$ul_properties}>";
+      
+      // Check required fields for any data
+   	foreach ($this->results as $field => $data)
+   	{
+   		$field = strtolower(preg_replace("/[^a-zA-Z0-9s]/", " ", $field));
+   		if ( (strstr($field,'required')) && (empty($data)) )
+   		{
+   			$field = ucwords(str_replace('required','',$field));
+   			$errors_block .= "\n    <li>A required field was left blank: <strong>$field</strong></li>";
+   		}
+   		// Error checking on select boxes when the defailt is "didnotchoose" (see README)
+   		if ( (is_array($data)) && (in_array('didnotchoose',$data)) && count($data) == 1 )
+   		{
+   			$field = ucwords(str_replace('required','',$field));
+   			$errors_block .= "\n    <li>A required field was left blank: <strong>$field</strong></li>";
+   		}
+   	}
+
+   	// Check to standard email field to validate
+   	foreach ($this->results as $field => $data)
+   	{
+   		$field = strtolower(preg_replace("/[^a-zA-Z0-9s]/", "", $field));
+   		$data = strtolower($data);
+   		if ( (strstr($field,'email')) && (!empty($data)) && ( ! preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/", $data)) )
+   		{
+   			$errors_block .= "\n    <li>This email address is not valid: <strong>$data</strong></li>";
+   		}
+   	}
+      
+      
+      $errors_block .= "\n</ul>\n\n";
+      
+      echo $errors_block;
       
    }
    
