@@ -1,10 +1,19 @@
 h1. Notes for thought
 
+h2. For Doug
 
-* Do I really need the settings array created in the constructor?
-* write case for submit and textareas for create_field() method
-* add in id and class vars to the create_field() method
-* add auto-increment to create_field() ids if the $name has the '[]' string (indicating an array)
 * build show_review_results() and show_errors() out
-* breakout error and results processing from show_review_results() and show_errors() so the functions can remind abstracted (DRY!!!)
+* figure out attachment piece
+* port over preview and instant submission piece
+* remove error display lines
+* add in validation for errors
+
+h2. Pre-3.0 release
+
 * add language support ??
+* breakout error and results processing from show_review_results() and show_errors() so the functions can remind abstracted (DRY!!!)
+* add auto-increment to create_field() ids if the $name has the '[]' string (indicating an array)
+* Do I really need the settings array created in the constructor?
+* remove error display lines
+* add in debugger
+* add in id and class vars to the create_field() method

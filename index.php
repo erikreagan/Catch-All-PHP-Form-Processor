@@ -17,27 +17,29 @@
 <?php
 
 require 'catch_all.php';
-
 $form = new Catch_all;
 
-// $form->show_review_results('ul_id','ul_class');
-
 $form->show_errors('ul_id','ul_class');
-
 ?>
-<form action="" method="post" accept-charset="utf-8">
+   
+   
+
+   
+   
+<?php if ($form->show_form) : ?>
+   
+<form action="" method="post" accept-charset="utf-8" enctype="multipart/form-data">
 	<p>First Name: <?php echo $form->create_field('required_first_name','Erik','text')?></p>
 	<p>Last Name: <?php echo $form->create_field('required_last_name','','text')?></p>
 	<p>Email Address: <?php echo $form->create_field('email_address','erikidealdesignfirm.com','text')?><br/></p>
 	<p>Are you over 18?</p>
-	<p><?php echo $form->create_field('are_you_over_18','Yes','radio')?>Yes</p>
-	<p><?php echo $form->create_field('are_you_over_18','No','radio')?>No<br/></p>
+	<p><?php echo $form->create_field('are_you_over_18','Yes','radio')?>Yes &nbsp;&nbsp;&nbsp;<?php echo $form->create_field('are_you_over_18','No','radio')?>No<br/></p>
 	<p>Additional Comments:</p>
-	<p><textarea name="additional-comments" rows="8" cols="40">Testing something out "like quotation marks" and other stuff too.
-<strong>it's an apostrophe</strong></textarea><br/><br/></p>
-	<p><?php echo $form->create_field('vehicle[]','Bike','checkbox')?> I have a bike</p>
-	<p><?php echo $form->create_field('vehicle[]','Car','checkbox')?> I have a car</p>
-	<p><?php echo $form->create_field('vehicle[]','Airplane','checkbox')?> I have an airplane:<br/></p>
+	<p><?php echo $form->create_field('additional_comments','Testing something out "like quotation marks" and other stuff too.
+<strong>it\'s an apostrophe</strong>','textarea',array('rows'=>'3','cols'=>'50'))?><br/><br/></p>
+	<p><?php echo $form->create_field('vehicle[]','Bike','checkbox')?> I have a bike&nbsp;&nbsp;&nbsp;<?php echo $form->create_field('vehicle[]','Car','checkbox')?> I have a car&nbsp;&nbsp;&nbsp;<?php echo $form->create_field('vehicle[]','Airplane','checkbox')?> I have an airplane:<br/></p>
+	<p>Upload File</p>
+	<p><input type="file" name="photo_upload" value="" id="attachment" />
 	<p>Favorite Types of Cars</p>
 	<p><?php echo $form->create_select_open('car[]',TRUE)?> 
 	<?php echo $form->create_field('car[]',array('Volvo','Volvo'),'option')?> 
@@ -45,7 +47,24 @@ $form->show_errors('ul_id','ul_class');
 	<?php echo $form->create_field('car[]',array('Opel','Opel'),'option')?> 
 	<?php echo $form->create_field('car[]',array('Audi','Audi'),'option')?> 
 	<?php echo $form->create_select_close()?></p>
-	<p><input type="submit" name="submit" value="Submit Results" /></p>
+   <p><?php echo $form->create_field('submit','Submit Results','submit') ?></p>
 </form>
+
+<?php endif; ?>
+
+<?php if($form->stage == 'review') : ?>
+
+<?php $form->show_review_results('ul_id','ul_class'); ?>
+
+<?php elseif($form->stage == 'sent') : ?>
+
+<p>Success!</p>
+   
+<?php else : ?>
+   
+<p>Hmmm, that was unexpected</p>
+
+<?php endif; ?>
+
 </body>
 </html>

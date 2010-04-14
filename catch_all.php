@@ -37,7 +37,15 @@ class Catch_all
    protected $include_blank_fields = TRUE;   // Set to FALSE if you do not wish to email fields that aren't filled in 
    protected $email_html           = TRUE;   // TRUE sends email in HTML; FALSE sends email in plain text
    protected $header_troubles      = FALSE;  // Only set this to TRUE if youe email headers aren't being sent correctly from your server.
-   protected $debug_mode           = TRUE; // Switch on to enable debugging log; no emails will be sent and errors and notes will be displayed to everyone
+   protected $debug_mode           = TRUE; // Switch on to enable debugging log; no emails sent and errors and notes will be displayed
+   
+   
+   /**
+    * This is our $stage variable which will be used to determine what to show on the front-end
+    */
+   
+   public $show_form               = TRUE;
+   public $stage                   = 'start';
 
    /**
     * Initial arrays for use in our class
@@ -46,15 +54,24 @@ class Catch_all
    public $all_settings            = array(); // compiles all above strings into an array for easy access to all at once (necessary? probably not.)
    public $results                 = array(); // field results upon submission
    public $errors                  = FALSE; // errors for use after submission
-
-
-
+   
+   
+   
+   /**
+    * Constructor, runs each time our class is initialized
+    *
+    * @return bool
+    * @author Erik Reagan
+    **/
    function __construct()
    {
       
       $this->check_for_submission();
       
    }
+   // End of __construct
+   
+   
    
    
    /**
@@ -75,6 +92,8 @@ class Catch_all
       }
       
    }
+   // End of check_for_submission
+   
    
    
    
@@ -117,6 +136,8 @@ class Catch_all
       unset($_POST);
       
    }
+   // End of sanitize post
+   
    
    
    
@@ -126,7 +147,7 @@ class Catch_all
     * @return string
     * @author Erik Reagan
     **/
-   public function create_field($name = 'field', $default_value = NULL, $type = 'text')
+   public function create_field($name = 'field', $default_value = NULL, $type = 'text', $parameters = NULL)
    {
       
       // Start our field string so we can add to it as we build the field
@@ -146,10 +167,6 @@ class Catch_all
       
       // Now we build the field based on what type of input we have at hand
       switch ($type) {
-         case 'textarea':
-            echo 'textarea';
-            break;
-            
          case 'radio':
             $field .= '<input type="'.$type.'" name="'.$name.'" id="'.$id.'" value="'.$default_value.'"';
             $field .= $this->is_selected($name_key,$default_value,$array_boolean);
@@ -168,6 +185,16 @@ class Catch_all
             $field .= $this->is_selected($name_key,$default_value,$array_boolean);
             $field .=' />';
             break;
+            
+         case 'textarea':
+            $rows = (isset($parameters['rows'])) ? $parameters['rows'] : '8' ;
+            $cols = (isset($parameters['cols'])) ? $parameters['cols'] : '40' ;
+            $field .= '<textarea name="'.$name_key.'" rows="'.$rows.'" cols="'.$cols.'">'.$default_value.'</textarea>';
+            break;
+            
+         case 'submit':
+            $field .= '<input type="submit" name="'.$name_key.'" value="'.$default_value.'" />';
+            break;
          
          // Out default is "text" (as seen in the method arguments above)
          default:
@@ -180,6 +207,8 @@ class Catch_all
       return $field;
       
    }
+   // End of create_field
+   
    
    
    
@@ -198,6 +227,8 @@ class Catch_all
       return '<select name="'.$name.'" id="'.$id.'" '.$multiple.'>';
       
    }
+   // End of create_select_open
+   
    
    
    
@@ -211,6 +242,9 @@ class Catch_all
    {
       return '</select>';
    }
+   // End of create_select_close
+   
+   
    
    
    /**
@@ -226,6 +260,8 @@ class Catch_all
       return (array_key_exists($field_name, $this->results)) ? $this->results[$field_name] : $default_value ;
       
    }
+   // End of get_field
+   
    
    
    
@@ -256,6 +292,8 @@ class Catch_all
       }
       
    }
+   // End of is_selected
+   
    
    
    
@@ -313,6 +351,8 @@ class Catch_all
       echo $results_block;
       
    }
+   // End of show_review_results
+   
    
    
    
@@ -377,6 +417,7 @@ class Catch_all
       echo $errors_block;
       
    }
+   // End of show_errors
    
 }
 // End of class Catch_all
