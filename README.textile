@@ -314,7 +314,7 @@ h2. Change log
 
 +*2.0.3 Released July 4th, 2010*+
 
-* Fixed bug where $from_email_in_form was not correctly set in process-form-settings.php
+* Fixed bug where $from_email_in_form was not correctly set in process-form.php
 
 *2.0.2 Released March 3rd, 2010*
 
